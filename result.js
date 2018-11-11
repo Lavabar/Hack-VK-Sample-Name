@@ -6,6 +6,17 @@ var phone;
 var myCall;
 var question_id = 0;
 var tasks = [
+    // {
+    //     music: 'https://psv4.vkuseraudio.net/c536213/u183259156/audios/c6789270db88.mp3?extra=dOPoZwwgmUC0PmJrQANSs_dB1pzXgcITWeTom8SzLhKUHr2O6JF8zOfTa3V3ksgNtqK7REvR_kQpBwt9plonzoNjSKwCHrqZ8WQpmI_OjZ-cBEup_-AhftV2OQWitsla0ARo63vbM_PuCyVnmyDpKw',
+    //     question: 'Кто композитор данного произведения?',
+    //     answers: [
+    //         'рахманинов',
+    //         'бах',
+    //         'вивальди'
+    //     ],
+    //     roots: ['ахман'],
+    //     right: 0
+    // },
     {
         question: 'На каком инструменте играл итальянский композитор Вивальди?',
         answers: [
@@ -23,7 +34,7 @@ var tasks = [
             'воронеж',
             'смоленск'
         ],
-        roots: ['cмолен'],
+        roots: ['молен'],
         right: 2
     },
     {
@@ -33,20 +44,9 @@ var tasks = [
             'россия',
             'венеция'
         ],
-        roots: ['венец'],
+        roots: ['енец'],
         right: 2
-    },
-    {
-        music: 'https://drive.google.com/file/d/1zxkCnjvX_1ESLSW8O30HayTKZEeGbHyS/view',
-        question: 'Кто композитор данного произведения?',
-        answers: [
-            'рахманинов',
-            'бах',
-            'вивальди'
-        ],
-        roots: ['рахман'],
-        right: 0
-    },
+    }
 ]
 var timer;
 var is_right;
@@ -64,29 +64,61 @@ function startGame() {
 }
 
 function askQuestion() {
-    myCall.removeEventListener(CallEvents.PlaybackFinished);
-    let answers_text = '';
-    for (i = 0; i < tasks[question_id].answers.length; i++) {
-        answers_text += tasks[question_id].answers[i] + '...  ';
-    }
-    myCall.say('Вопрос номер: ' + (question_id + 1) + '...  ' + tasks[question_id].question + '. Варианты ответов: ' + answers_text, say_config);
-    myCall.addEventListener(CallEvents.PlaybackFinished, (e) => {
+    if (question_id != tasks.length)  {
         myCall.removeEventListener(CallEvents.PlaybackFinished);
-        let myASR = VoxEngine.createASR({
-            lang: ASRLanguage.RUSSIAN_RU
-        });
-        myCall.sendMediaTo(myASR);
-        setTimeout((e) => {
-            myASR.removeEventListener(ASREvents.Result);
-            endQuestion(is_right);
-        }, 5000)
-        myASR.addEventListener(ASREvents.Result, (e) => {
-            myASR.removeEventListener(ASREvents.Result);
-            myASR.stop(); 
-            is_right = isRight(e.text);
-        })
-    })
-
+        let answers_text = '';
+        for (i = 0; i < tasks[question_id].answers.length; i++) {
+            answers_text += tasks[question_id].answers[i] + '...  ';
+        }
+        if (!!tasks[question_id].music) {
+            myCall.say('Вопрос номер: ' + (question_id + 1) + '...'  + tasks[question_id].question, say_config);
+            myCall.addEventListener(CallEvents.PlaybackFinished, e => {
+                myCall.removeEventListener(CallEvents.PlaybackFinished);
+                myCall.startPlayback(tasks[question_id].music)
+                setTimeout((e) => {
+                    myCall.stopPlayback();
+                    myCall.say('. Варианты ответов: ' + answers_text, say_config);
+                    myCall.addEventListener(CallEvents.PlaybackFinished, (e) => {
+                        myCall.removeEventListener(CallEvents.PlaybackFinished);
+                        let myASR = VoxEngine.createASR({
+                            lang: ASRLanguage.RUSSIAN_RU
+                        });
+                        myCall.sendMediaTo(myASR);
+                        setTimeout((e) => {
+                            myASR.removeEventListener(ASREvents.Result);
+                            endQuestion(is_right);
+                        }, 7000)
+                        myASR.addEventListener(ASREvents.Result, (e) => {
+                            myASR.removeEventListener(ASREvents.Result);
+                            myASR.stop(); 
+                            is_right = isRight(e.text);
+                        })
+                    })                
+                }, 7000)
+            })
+        }
+        else {
+            myCall.say('Вопрос номер: ' + (question_id + 1) + '...  ' + tasks[question_id].question + '. Варианты ответов: ' + answers_text, say_config);
+            myCall.addEventListener(CallEvents.PlaybackFinished, (e) => {
+                myCall.removeEventListener(CallEvents.PlaybackFinished);
+                let myASR = VoxEngine.createASR({
+                    lang: ASRLanguage.RUSSIAN_RU
+                });
+                myCall.sendMediaTo(myASR);
+                setTimeout((e) => {
+                    myASR.removeEventListener(ASREvents.Result);
+                    endQuestion(is_right);
+                }, 7000)
+                myASR.addEventListener(ASREvents.Result, (e) => {
+                    myASR.removeEventListener(ASREvents.Result);
+                    myASR.stop(); 
+                    is_right = isRight(e.text);
+                })            
+            })
+        }
+    }
+    else winGame();
+    
 }
 
 //Конец вопроса
