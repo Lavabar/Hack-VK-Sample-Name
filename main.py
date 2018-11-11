@@ -22,7 +22,7 @@ confirmation_token= "33b00e7d"
 @app.route('/', methods=['POST'])
 def processing():
     data = request.get_json()
-    #print(data)
+    print(data)
     if 'type' not in data.keys():
         return 'not vk'
     if data['type'] == 'confirmation':
@@ -30,6 +30,7 @@ def processing():
     if data['type'] == 'lead_forms_new':
         name = str(data['object']['answers'][0]['answer'])
         phone = str(data['object']['answers'][1]['answer'])
+        comp = str(data['object']['answers'][1]['answer'])
         #conn = pymysql.connect(host='185.117.152.219', user='hack', password='Wzfuv175', database='hack')
        # cursor = conn.cursor()
         # data = (str(None), str(nam), str(phon))
@@ -38,9 +39,10 @@ def processing():
         # cursor.execute("""insert into users1 (id, name, phone) values (NULL, {0}, {1}""".format(str("\'" + nam + "\'" ), str("\'" + phon + "\'" )))
         #print(cursor.execute("select * from users1"))
        # conn.close()
-        print(nam)
-        print(phon)
-        return "true"
+       # print(nam)
+        #print(phon)
+        foto_verification.add_composer(comp)
+        print(comp)
        # t = clever.start(name, phone)
     elif data['type'] == 'message_new':
         session = vk.Session()
@@ -49,12 +51,14 @@ def processing():
         text = data['object']['attachments'][0]
         im = text['photo']['photo_807']
         resp = foto_verification.get_name(im)
-        if resp != 'noname':
+        #print(resp)
+        if resp == 'noname':
+            api.messages.send(access_token=token, user_id=str(user_id), message="Извините, мы не смогли найти данного композитора, попробуйте еще раз")
+        else:
             link = script.findConcert(resp).encode("utf-8").decode("utf-8")
             fin = telegra.createArt(resp, link, im)
             api.messages.send(access_token=token, user_id=str(user_id), message = fin)
-        elif resp == 'noname':
-            api.messages.send(access_token=token, user_id=str(user_id), message="Извините, мы не смогли найти данного композитора, попробуйте еще раз")
+
     return 'ok'
 
 @app.route('/serv')
@@ -68,4 +72,4 @@ def mobil():
     return data1
 
 if __name__ == "__main__":
-	app.run(host='0.0.0.0', port=80, debug = True)
+	app.run(host='0.0.0.0', port=80, debug = True, )

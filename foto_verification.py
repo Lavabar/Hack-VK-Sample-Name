@@ -24,7 +24,7 @@ import requests
 from io import BytesIO
 
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/user/projects/vkhack/grobot-243eea5f94cb.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/ubuntu/hackVK/grobot-ede0797ed7ff.json"
 
 from translit_v1 import transliterate
 
@@ -65,9 +65,7 @@ def report(annotations):
                 if word in composers_eng:
                     idx = composers_eng.index(word)
                     return composers_rus[idx]
-        return [i.description for i in ents]
-    else:
-        return "noname"
+    return "noname"
     # [END vision_web_detection_tutorial_print_annotations]
 
 def detect_faces(image, path):
