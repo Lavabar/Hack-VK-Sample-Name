@@ -1,0 +1,5 @@
+*.json
+output-crop.jpg
+*.log
+__pycache__/
+*.zip

@@ -1,0 +1,4 @@
+import wikipedia
+#print(wikipedia.summary("Wikipedia"))
+ny = wikipedia.page("New York")
+print(ny.title)
