@@ -24,41 +24,36 @@ import requests
 from io import BytesIO
 
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/ubuntu/hackVK/grobot-ede0797ed7ff.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/user/projects/vkhack/grobot-243eea5f94cb.json"
 
-composers_eng = ["Handel",
-"Bach",
-"Mozart",
-"Haydn",
-"Beethoven",
-"Chopin",
-"Liszt",
-"Schumann",
-"Mendelssohn",
-"Tchaikovsky",
-"Mahler",
-"Wagner",
-"Glinka",
-"Rachmaninoff",
-"Brams",
-"Borodin"]
+from translit_v1 import transliterate
 
-composers_rus = ["Гендель",
-"Бах",
-"Моцарт",
-"Гайдн",
-"Бетховен",
-"Шопен",
-"Лист",
-"Шуманн",
-"Мендельсон",
-"Чайковский",
-"Малер",
-"Вагнер",
-"Глинка",
-"Рахманинов",
-"Брамс",
-"Бородин`"]
+with open("composers_eng.txt", "r") as f:
+    composers_eng = [line.replace("\n", "") for line in f]
+with open("composers_rus.txt", "r") as f:
+    composers_rus = [line.replace("\n", "") for line in f]
+
+def add_composer(rus_name):
+    composers_rus.append(rus_name)
+    composers_eng.append(transliterate(rus_name))
+    with open("composers_eng.txt", "w") as f:
+        for comp in composers_eng:
+            f.write(comp + "\n")
+    with open("composers_rus.txt", "w") as f:
+        for comp in composers_rus:
+            f.write(comp + "\n")
+
+def del_composer(rus_name):
+    idx = composers_rus.index(rus_name)
+    composers_rus.pop(idx)
+    composers_eng.pop(idx)
+    with open("composers_eng.txt", "w") as f:
+        for comp in composers_eng:
+            f.write(comp + "\n")
+    with open("composers_rus.txt", "w") as f:
+        for comp in composers_rus:
+            f.write(comp + "\n")
+
 
 def report(annotations):
     """Prints detected features in the provided web annotations."""
